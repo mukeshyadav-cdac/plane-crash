@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html>
+  <meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+  <title>Plane Crash</title>
+  <script src="scripts/lib/Box2dWeb-2.1.a.3.js"></script>
+  <script src="scripts/lib/tween.min.js"></script>
+  <!-- game libraries -->
+  <script src="scripts/requestNextAnimationFrame.js"></script>
+  <link href="styles/home.css" rel="stylesheet">
+  <body>
+		  <div id="gameArea">
+     			 <canvas id='canvas'>
+       				 Canvas not supported
+     			 </canvas>
+
+
+           <div>
+     			 <!--
+       			  <div id="break" style="background-color:red;width:200px;float:left"> 
+       			   break
+       			  </div>
+       			  <div style="width:300px;float:left">
+       			  </div>
+       			  <div id="flip" style="background-color:red;width:200px;float:right">
+       			   flip
+       			  </div>
+       			  -->
+     			 </div>
+		  </div>
+      <canvas id="first" width="600" height="900" style="display:none;"></canvas>
+           <canvas id="second" width="600" height="900" style="display:none;"></canvas>
+      <div id="gameAreaDebug">
+          
+           <canvas id='debug'>
+               Canvas not supported
+           </canvas>
+      </div>
+		<script src="scripts/box2dVar.js"></script>
+		<script src="scripts/plain.js"></script>  
+		<script src="scripts/contact.js"></script>
+		<script src="scripts/rectangle.js"></script>
+    <script src="scripts/background.js"></script>
+		<script src="scripts/game.js"></script>
+
+		<script>
+		  swapCalculartion = {
+		    startX : 0,
+		    startY : 0,
+		    endX : 0,
+		    endY : 0,
+		    startT : 0,
+		    endT : 2,
+		    movement : false
+		  };
+
+		  window.addEventListener('resize', gameBoard.resize, false);
+      window.addEventListener('orientationchange', gameBoard.resize, false);
+		  document.addEventListener( 'mousedown'	, swapStart	, false );
+      document.addEventListener( 'mouseup'	, swapEnd	, false );
+
+      document.addEventListener( 'touchstart'	, onTouchStart	, false );
+      document.addEventListener( 'touchend'	, onTouchEnd	, false );
+
+      document.addEventListener("keypress", breakPlain, false);
+
+		  function swapStart(event) {
+		    if( !planeTakeOff ) {
+		      swapCalculartion.startX = event.clientX;
+		      swapCalculartion.startY = event.clientY;
+		      swapCalculartion.startT = 0;
+		      swapCalculartion.movement = true;  
+		    }
+		      event.preventDefault();
+          return false;
+		  }
+
+		  function swapEnd(event) {
+		  if( !planeTakeOff ) {
+		     swapCalculartion.endX = event.clientX;
+		     swapCalculartion.endY = event.clientY;
+		     velX = (swapCalculartion.endX - swapCalculartion.startX) / 2 ;
+		     velY = (swapCalculartion.endY - swapCalculartion.startY) / 2;
+		     if( Math.abs(velX) > 10 || Math.abs(velY) > 10) {
+		       var force = new b2Vec2(velX / fitToScreenX ,velY*2 / fitToScreenY);
+           var planeCenter = plane.body.GetWorldCenter();
+           plane.body.ApplyForce(force,planeCenter);
+           planeTakeOff = true;
+         } else {
+           flipPlain();
+         }  
+       }
+		  }
+
+		  function onTouchStart(event) {
+	        if( event.touches.length != 1 )	return;
+	        event.preventDefault();
+	        swapCalculartion.startX	= event.touches[ 0 ].pageX;
+	        swapCalculartion.startY	= event.touches[ 0 ].pageY;
+      }
+
+        function onTouchEnd(event) {
+          event.preventDefault();
+          swapCalculartion.endX = event.touches[ 0 ].pageX;
+    		  swapCalculartion.endY = event.touches[ 0 ].pageY;
+    		  velX = (swapCalculartion.endX - swapCalculartion.startX) / 2 ;
+    		  velY = (swapCalculartion.endY - swapCalculartion.startY) / 2;
+  		    var force = new b2Vec2(velX / fitToScreenX ,velY*2 / fitToScreenY);
+          var planeCenter = plane.body.GetWorldCenter();
+          plane.ApplyForce(force,planeCenter);  
+        }
+
+        function breakPlain(e){
+          if( e.charCode == 32  && !planeTakeOff ) {
+           plane.componetObject[3].GetMotorSpeed() == 5 ?  plane.componetObject[3].SetMotorSpeed(0) : plane.componetObject[3].SetMotorSpeed(5);
+            plane.componetObject[4].GetMotorSpeed() == 5 ?  plane.componetObject[4].SetMotorSpeed(0) : plane.componetObject[4].SetMotorSpeed(5);
+            var force = new b2Vec2(0 ,0);
+            var planeCenter = plane.body.GetWorldCenter();
+            plane.body.SetLinearVelocity(force);
+            e.preventDefault();
+          }
+          return false;
+        }
+
+        function flipPlain() {
+          if( !planeTakeOff ) {
+            PlaneDirection = (PlaneDirection == "right") ? "left" : "right";
+            var xplane = (plane.body.GetPosition().x * scale) /fitToScreenX;
+            var yplane = (plane.body.GetPosition().y * scale) / fitToScreenY;
+            plane.destroy();
+            delete plane;
+            plane =  (PlaneDirection == "right") ? new PlaneRight(xplane, yplane) : plane = new PlaneLeft(xplane, yplane);
+            gameBoard.gameObjectArray.push(plane);
+          }
+          return false;  
+        }
+
+      
+		</script>
+		
+  </body>
+</html>

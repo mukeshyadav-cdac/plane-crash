@@ -1,0 +1,25 @@
+#gameArea {
+  position: absolute;
+  left:     50%;
+  top:      50%;
+}
+
+#canvas {
+  width: 100%;
+  height: 100%;
+  z-index: 1;
+  background-color: #140C0C;
+
+}
+
+#debug {
+  width: 100%;
+  height: 100%;
+  z-index: 2;
+}
+
+#gameAreaDebug {
+  position: absolute;
+  left:     50%;
+  top:      50%;
+}
